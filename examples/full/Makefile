@@ -38,6 +38,7 @@ test: wait-for-it.sh
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
 
 dump-logs:
+	kubectl -n k8s-http-auth-system get events
 	kubectl -n k8s-http-auth-system logs svc/api && \
 		kubectl -n k8s-http-auth-system logs svc/db && \
 		cat port-forward.log
