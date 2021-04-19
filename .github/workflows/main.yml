@@ -15,11 +15,12 @@ jobs:
           go-version: 1.16.x
       - run: make
   integration-test:
-    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: v0.10.0
       - run: make -C examples/full
       - run: make -C examples/full start-port-forwarding
       - run: make -C examples/full test

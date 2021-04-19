@@ -25,6 +25,8 @@ The default `make` (`make all`) target will run the following targets:
 - `kind-ensure-cluster` - ensure a kind cluster is available
 - `kind-load` - load the api and db images into the kind cluster
 - `apply` - apply the `./deployment.yaml` to the cluster
+- `wait-for-db` - wait for the db pod to be ready
+- `wait-for-api` - wait for the api pod to be ready
 
 ## Interacting Locally
 

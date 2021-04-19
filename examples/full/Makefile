@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-all: build kind-ensure-cluster kind-load apply
+all: build kind-ensure-cluster kind-load apply wait-for-db wait-for-api
 
 build: build-api build-db
 
@@ -31,6 +31,9 @@ start-port-forwarding:
 
 stop-port-forwarding:
 	./port-forwarding stop
+
+wait-for-%:
+	kubectl -n k8s-http-auth-system wait --for=condition=ready pod -l app=$*
 
 test: wait-for-it.sh
 	./wait-for-it.sh 127.0.0.1:18080 -- curl -fsiSL http://127.0.0.1:18080 && \
