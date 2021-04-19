@@ -60,6 +60,8 @@ func withHeader(tr Interface, req *http.Request, key string) (*http.Request, err
 	if err != nil {
 		return req, err
 	}
-	req.Header.Set(key, tokenString)
-	return req, nil
+
+	newReq := req.Clone(req.Context())
+	newReq.Header.Set(key, tokenString)
+	return newReq, nil
 }
