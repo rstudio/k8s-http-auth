@@ -1,4 +1,6 @@
-package middleware // import "github.com/hamfist/k8s-http-auth/middleware"
+// Kubernetes HTTP auth middleware for managing access via client
+// ID (service account token) present in request header.
+package middleware
 
 import (
 	"context"
@@ -24,11 +26,24 @@ var (
 
 type contextKey string
 
+// Interface is the function type returned from New for use as an
+// http middleware.
+type Interface func(http.Handler) http.Handler
+
+// Options may be passed to New when creating a middleware
+// Interface func.
 type Options struct {
-	IDHeader  string
+	// IDHeader is the header key checked when validating a
+	// request.
+	IDHeader string
+
+	// Audiences are passed directly with a token review when
+	// validating a request.
 	Audiences []string
 }
 
+// New creates a new Interface func for use with an http mux
+// (router).
 func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) func(http.Handler) http.Handler {
 	mw := &middleware{
 		reviewer:       reviewer,

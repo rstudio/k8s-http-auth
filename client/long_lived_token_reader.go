@@ -1,4 +1,4 @@
-package client // import "github.com/hamfist/k8s-http-auth/client"
+package client
 
 import (
 	"context"
