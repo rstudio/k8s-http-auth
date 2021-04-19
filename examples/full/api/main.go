@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -34,6 +35,13 @@ func main() {
 		dbAddr = v
 		log.Info("using db addr from DB_ADDR", "db_addr", dbAddr)
 	}
+
+	router.HandleFunc("/healthz", func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		if _, err := io.WriteString(w, "ok\n"); err != nil {
+			log.Error(err, "failed to write response")
+		}
+	})
 
 	router.HandleFunc("/", buildHome(ac, dbAddr))
 	router.Use(func(next http.Handler) http.Handler {
