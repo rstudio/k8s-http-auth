@@ -37,6 +37,11 @@ test: wait-for-it.sh
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/api && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
 
+dump-logs:
+	kubectl -n k8s-http-auth-system logs svc/api && \
+		kubectl -n k8s-http-auth-system logs svc/db && \
+		cat port-forward.log
+
 wait-for-it.sh:
 	curl -fsSL -o $@ https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
 	chmod -v +x $@

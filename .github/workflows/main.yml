@@ -22,5 +22,9 @@ jobs:
       - run: make -C examples/full
       - run: make -C examples/full start-port-forwarding
       - run: make -C examples/full test
-      - run: make -C examples/full stop-port-forwarding
-      - run: make -C examples/full delete
+      - if: always()
+        run: make -C examples/full dump-logs
+      - if: always()
+        run: make -C examples/full stop-port-forwarding
+      - if: always()
+        run: make -C examples/full delete
