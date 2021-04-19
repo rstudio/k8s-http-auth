@@ -44,7 +44,7 @@ type Options struct {
 
 // New creates a new Interface func for use with an http mux
 // (router).
-func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) func(http.Handler) http.Handler {
+func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) Interface {
 	mw := &middleware{
 		reviewer:       reviewer,
 		clientIDHeader: client.DefaultIDHeader,
