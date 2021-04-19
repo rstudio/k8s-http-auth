@@ -8,3 +8,4 @@
 
 /examples/full/port-forward.log
 /examples/full/port-forward.pid
+/examples/full/wait-for-it.sh

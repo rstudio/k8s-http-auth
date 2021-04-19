@@ -32,7 +32,11 @@ start-port-forwarding:
 stop-port-forwarding:
 	./port-forwarding stop
 
-test:
-	curl -fsiSL http://127.0.0.1:18080 && \
+test: wait-for-it.sh
+	./wait-for-it.sh 127.0.0.1:18080 -- curl -fsiSL http://127.0.0.1:18080 && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/api && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
+
+wait-for-it.sh:
+	curl -fsSL -o $@ https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+	chmod -v +x $@
