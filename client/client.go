@@ -34,17 +34,24 @@ var (
 	}
 )
 
-// Interface provides methods for working with client IDs as
-// provided by service account tokens.
-type Interface interface {
+type IDer interface {
 	// ID returns the client ID as typically defined in a service
 	// account token.
 	ID(context.Context) (string, error)
+}
 
+type WithHeaderer interface {
 	// WithHeader returns a clone of the given request that
 	// includes the client ID set as the value of the configured
 	// header.
 	WithHeader(*http.Request) (*http.Request, error)
+}
+
+// Interface provides methods for working with client IDs as
+// provided by service account tokens.
+type Interface interface {
+	IDer
+	WithHeaderer
 }
 
 // Options may be passed to New when creating a client Interface.
@@ -68,24 +75,18 @@ type Options struct {
 // requests that contain the necessary auth headers. A nil value
 // for the *Options argument is allowed and will result in the
 // ExpiringTokenOptions being used.
-func New(opts *Options) Interface {
+func New(ctx context.Context, opts *Options) Interface {
 	if opts == nil {
 		opts = ExpiringTokenOptions
 	}
 
-	if opts.TokenExpiry < 0 {
-		return &longLivedTokenReader{
-			path:   opts.TokenPath,
-			header: opts.IDHeader,
-		}
-	}
-
-	etr := &expiringTokenReader{
-		loopInterval: opts.TokenExpiry,
+	frc := &fileReadingClient{
 		path:         opts.TokenPath,
 		header:       opts.IDHeader,
+		loopInterval: opts.TokenExpiry,
 	}
-	return etr.started()
+
+	return frc.started(ctx)
 }
 
 func withHeader(tr Interface, req *http.Request, key string) (*http.Request, error) {

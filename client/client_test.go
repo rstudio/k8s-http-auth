@@ -20,8 +20,10 @@ func TestClient(t *testing.T) {
 	td, err := ioutil.TempDir("", "k8s-http-auth.*")
 	assert.Nil(t, err)
 
+	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
 		_ = os.RemoveAll(td)
+		cancel()
 	}()
 
 	tokenPath := filepath.Join(td, "api-token")
@@ -31,10 +33,7 @@ func TestClient(t *testing.T) {
 		TokenExpiry: 10 * time.Minute,
 		TokenPath:   tokenPath,
 	}
-	cl := client.New(clOpts)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	cl := client.New(ctx, clOpts)
 
 	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-test")
 	ctx = logr.NewContext(ctx, log)
