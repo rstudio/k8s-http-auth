@@ -8,11 +8,13 @@ import (
 
 func TestPackageInterface(t *testing.T) {
 	_ = map[string]interface{}{
-		"Client":             new(k8shttpauth.Client),
+		"ClientInterface":    new(k8shttpauth.ClientInterface),
 		"Middleware":         new(k8shttpauth.Middleware),
 		"MiddlewareFunc":     new(k8shttpauth.MiddlewareFunc),
 		"NewClientInterface": k8shttpauth.NewClientInterface,
 		"NewMiddleware":      k8shttpauth.NewMiddleware,
 		"NewMiddlewareFunc":  k8shttpauth.NewMiddlewareFunc,
+		"NewReviewer":        k8shttpauth.NewReviewer,
+		"Reviewer":           new(k8shttpauth.Reviewer),
 	}
 }
