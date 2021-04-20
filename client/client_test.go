@@ -3,6 +3,7 @@ package client_test
 import (
 	"context"
 	"io/ioutil"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -25,10 +26,12 @@ func TestClient(t *testing.T) {
 
 	tokenPath := filepath.Join(td, "api-token")
 
-	cl := client.New(&client.Options{
+	clOpts := &client.Options{
+		IDHeader:    "Whats-The-Password",
 		TokenExpiry: 10 * time.Minute,
 		TokenPath:   tokenPath,
-	})
+	}
+	cl := client.New(clOpts)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -49,4 +52,9 @@ func TestClient(t *testing.T) {
 	tok, err = cl.ID(ctx)
 	assert.Nilf(t, err, "subsequent read succeeds because the file %q exists now", tokenPath)
 	assert.Equalf(t, "sturgeon", tok, "token matched expected value")
+
+	req := httptest.NewRequest("GET", "/haddock", nil)
+	req, err = cl.WithHeader(req)
+	assert.Nilf(t, err, "request with header produced no error")
+	assert.NotEqual(t, "", req.Header.Get(clOpts.IDHeader))
 }

@@ -58,12 +58,6 @@ func TestMiddleware(t *testing.T) {
 	badToken := "alfresco"
 	disallowedToken := "alf"
 
-	state := struct {
-		requests []string
-	}{
-		requests: []string{},
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -98,40 +92,56 @@ func TestMiddleware(t *testing.T) {
 		},
 	}
 
-	next := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		state.requests = append(state.requests, req.RequestURI)
-		w.WriteHeader(http.StatusOK)
-	})
+	type tcFunc func(http.Handler, clientauthv1.TokenReviewInterface, *middleware.Options) http.Handler
 
-	mwFunc := middleware.New(tr, &middleware.Options{Audiences: []string{"birbs"}})
+	for _, f := range []tcFunc{
+		func(next http.Handler, tr clientauthv1.TokenReviewInterface, opts *middleware.Options) http.Handler {
+			return middleware.New(tr, opts).WithNext(next)
+		},
+		func(next http.Handler, tr clientauthv1.TokenReviewInterface, opts *middleware.Options) http.Handler {
+			return middleware.NewFunc(tr, opts)(next)
+		},
+	} {
+		state := struct {
+			requests []string
+		}{
+			requests: []string{},
+		}
 
-	req := httptest.NewRequest("GET", "/whatever", nil)
-	w := httptest.NewRecorder()
+		next := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			state.requests = append(state.requests, req.RequestURI)
+			w.WriteHeader(http.StatusOK)
+		})
 
-	req.Header.Set(client.DefaultIDHeader, goodToken)
+		mw := f(next, tr, &middleware.Options{Audiences: []string{"birbs"}})
+		req := httptest.NewRequest("GET", "/whatever", nil)
+		w := httptest.NewRecorder()
 
-	mwFunc(next).ServeHTTP(w, req.WithContext(ctx))
+		req.Header.Set(client.DefaultIDHeader, goodToken)
 
-	assert.Len(t, state.requests, 1)
-	assert.Equal(t, http.StatusOK, w.Code)
+		mw.ServeHTTP(w, req.WithContext(ctx))
 
-	req = httptest.NewRequest("GET", "/whatever", nil)
-	w = httptest.NewRecorder()
+		assert.Len(t, state.requests, 1)
+		assert.Equal(t, http.StatusOK, w.Code)
 
-	req.Header.Set(client.DefaultIDHeader, badToken)
+		req = httptest.NewRequest("GET", "/whatever", nil)
+		w = httptest.NewRecorder()
 
-	mwFunc(next).ServeHTTP(w, req.WithContext(ctx))
+		req.Header.Set(client.DefaultIDHeader, badToken)
 
-	assert.Len(t, state.requests, 1)
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
+		mw.ServeHTTP(w, req.WithContext(ctx))
 
-	req = httptest.NewRequest("GET", "/whatever", nil)
-	w = httptest.NewRecorder()
+		assert.Len(t, state.requests, 1)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	req.Header.Set(client.DefaultIDHeader, disallowedToken)
+		req = httptest.NewRequest("GET", "/whatever", nil)
+		w = httptest.NewRecorder()
 
-	mwFunc(next).ServeHTTP(w, req.WithContext(ctx))
+		req.Header.Set(client.DefaultIDHeader, disallowedToken)
 
-	assert.Len(t, state.requests, 1)
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
+		mw.ServeHTTP(w, req.WithContext(ctx))
+
+		assert.Len(t, state.requests, 1)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	}
 }

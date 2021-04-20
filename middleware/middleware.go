@@ -20,18 +20,29 @@ const (
 )
 
 var (
+	errNilNext          = errors.New("nil next http.Handler")
 	errNoClientID       = errors.New("no client id")
 	errNotAuthenticated = errors.New("not authenticated")
 )
 
 type contextKey string
 
-// Interface is the function type returned from New for use as an
+// Func is the function type returned from New for use as an
 // http middleware.
-type Interface func(http.Handler) http.Handler
+type Func func(http.Handler) http.Handler
+
+// HandlerWithNexter is an http.Handler that knows how to wrap another
+// http.Handler as in a middleware chain
+type HandlerWithNexter interface {
+	http.Handler
+
+	// WithNext accepts the "next" http.Handler in the middleware
+	// stack and returns the wrapping http.Handler.
+	WithNext(http.Handler) http.Handler
+}
 
 // Options may be passed to New when creating a middleware
-// Interface func.
+// func type.
 type Options struct {
 	// IDHeader is the header key checked when validating a
 	// request.
@@ -42,9 +53,15 @@ type Options struct {
 	Audiences []string
 }
 
-// New creates a new Interface func for use with an http mux
-// (router).
-func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) Interface {
+// NewFunc creates a new Func for use with an http mux (router).
+func NewFunc(reviewer clientauthv1.TokenReviewInterface, opts *Options) Func {
+	return func(next http.Handler) http.Handler {
+		return New(reviewer, opts).WithNext(next)
+	}
+}
+
+// New creates a HandlerWithNexter for use with an http mux (router).
+func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) HandlerWithNexter {
 	mw := &middleware{
 		reviewer:       reviewer,
 		clientIDHeader: client.DefaultIDHeader,
@@ -61,28 +78,46 @@ func New(reviewer clientauthv1.TokenReviewInterface, opts *Options) Interface {
 		}
 	}
 
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			status, ok := mw.isAuthorized(w, req)
-			if !ok {
-				return
-			}
-
-			next.ServeHTTP(
-				w,
-				req.WithContext(
-					context.WithValue(
-						req.Context(), AuthStatusContextKey, status,
-					),
-				))
-		})
-	}
+	return mw
 }
 
 type middleware struct {
 	reviewer       clientauthv1.TokenReviewInterface
 	clientIDHeader string
 	audiences      []string
+	next           http.Handler
+}
+
+// WithNext satisfies the HandlerWithNexter interface, returning this middleware
+// as an http.Handler
+func (mw *middleware) WithNext(next http.Handler) http.Handler {
+	mw.next = next
+	return mw
+}
+
+// ServeHTTP satisfies the http.Handler interface
+func (mw *middleware) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	log := logr.FromContextOrDiscard(req.Context())
+
+	status, ok := mw.isAuthorized(w, req)
+	if !ok {
+		return
+	}
+
+	if mw.next == nil {
+		log.Error(errNilNext, "likely because WithNext has not been called")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	mw.next.ServeHTTP(
+		w,
+		req.WithContext(
+			context.WithValue(
+				req.Context(), AuthStatusContextKey, status,
+			),
+		),
+	)
 }
 
 func (mw *middleware) isAuthorized(w http.ResponseWriter, req *http.Request) (*authv1.TokenReviewStatus, bool) {

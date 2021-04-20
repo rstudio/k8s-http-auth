@@ -8,9 +8,13 @@ import (
 )
 
 var (
-	// NewMiddleware returns a new middleware func for use with
+	// NewMiddleware returns a new Middleware for use with
 	// http mux (router).
 	NewMiddleware = middleware.New
+
+	// NewMiddlewareFunc returns a new middleware Func for use with
+	// http mux (router).
+	NewMiddlewareFunc = middleware.NewFunc
 
 	// NewClientInterface returns an interface for getting the
 	// client ID and building http requests with the necessary
@@ -18,5 +22,6 @@ var (
 	NewClientInterface = client.New
 )
 
-type Middleware = middleware.Interface
 type Client = client.Interface
+type Middleware = middleware.HandlerWithNexter
+type MiddlewareFunc = middleware.Func
