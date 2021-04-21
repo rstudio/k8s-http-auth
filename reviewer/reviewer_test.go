@@ -8,7 +8,7 @@ import (
 	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
 	"github.com/hamfist/k8s-http-auth/reviewer"
-	"github.com/hamfist/k8s-http-auth/reviewer/reviewertest"
+	"github.com/hamfist/k8s-http-auth/reviewer/memory"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	authv1 "k8s.io/api/authentication/v1"
@@ -46,12 +46,10 @@ func TestReviewer(t *testing.T) {
 		},
 	}
 
-	tr := &reviewertest.FakeTokenReviewer{
-		Store: map[string]*authv1.TokenReview{
-			reviewertest.FakeTokenReviewKey(goodTokenReview):       goodTokenReview,
-			reviewertest.FakeTokenReviewKey(disallowedTokenReview): disallowedTokenReview,
-		},
-	}
+	tr := memory.New(
+		goodTokenReview,
+		disallowedTokenReview,
+	)
 
 	rev := reviewer.New(tr, &reviewer.Options{Audiences: []string{"hats"}})
 

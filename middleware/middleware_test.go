@@ -10,11 +10,11 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/hamfist/k8s-http-auth/client"
 	"github.com/hamfist/k8s-http-auth/middleware"
-	"github.com/hamfist/k8s-http-auth/reviewer/reviewertest"
+	"github.com/hamfist/k8s-http-auth/reviewer"
+	"github.com/hamfist/k8s-http-auth/reviewer/memory"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	authv1 "k8s.io/api/authentication/v1"
-	clientauthv1 "k8s.io/client-go/kubernetes/typed/authentication/v1"
 )
 
 func TestMiddleware(t *testing.T) {
@@ -49,20 +49,18 @@ func TestMiddleware(t *testing.T) {
 		},
 	}
 
-	tr := &reviewertest.FakeTokenReviewer{
-		Store: map[string]*authv1.TokenReview{
-			reviewertest.FakeTokenReviewKey(goodTokenReview):       goodTokenReview,
-			reviewertest.FakeTokenReviewKey(disallowedTokenReview): disallowedTokenReview,
-		},
-	}
+	tr := memory.New(
+		goodTokenReview,
+		disallowedTokenReview,
+	)
 
-	type tcFunc func(http.Handler, clientauthv1.TokenReviewInterface, *middleware.Options) http.Handler
+	type tcFunc func(http.Handler, reviewer.TokenReviewCreator, *middleware.Options) http.Handler
 
 	for _, f := range []tcFunc{
-		func(next http.Handler, tr clientauthv1.TokenReviewInterface, opts *middleware.Options) http.Handler {
+		func(next http.Handler, tr reviewer.TokenReviewCreator, opts *middleware.Options) http.Handler {
 			return middleware.New(tr, opts).WithNext(next)
 		},
-		func(next http.Handler, tr clientauthv1.TokenReviewInterface, opts *middleware.Options) http.Handler {
+		func(next http.Handler, tr reviewer.TokenReviewCreator, opts *middleware.Options) http.Handler {
 			return middleware.NewFunc(tr, opts)(next)
 		},
 	} {
