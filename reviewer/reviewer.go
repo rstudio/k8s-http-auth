@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	authv1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clientauthv1 "k8s.io/client-go/kubernetes/typed/authentication/v1"
 )
 
 var (
@@ -19,11 +18,23 @@ type Reviewer interface {
 	Review(context.Context, string) error
 }
 
+// TokenReviewCreator is a subset of
+// k8s.io/client-go/kubernetes/typed/authentication/v1.TokenReviewInterface
+// that allows for easier interface fulfillment such as by
+// github.com/hamfist/k8s-http-auth/reviewer/local.TokenReviewCreator
+// and
+// github.com/hamfist/k8s-http-auth/reviewer/memory.TokenReviewCreator.
+// In typical production usage, this interface is satisfied by
+// (*k8s.io/client-go/kubernetes.Clientset).AuthenticationV1().TokenReviews().
+type TokenReviewCreator interface {
+	Create(context.Context, *authv1.TokenReview, metav1.CreateOptions) (*authv1.TokenReview, error)
+}
+
 type Options struct {
 	Audiences []string
 }
 
-func New(rev clientauthv1.TokenReviewInterface, opts *Options) Reviewer {
+func New(rev TokenReviewCreator, opts *Options) Reviewer {
 	kcl := &k8sClientReviewer{
 		rev:       rev,
 		audiences: nil,
@@ -39,7 +50,7 @@ func New(rev clientauthv1.TokenReviewInterface, opts *Options) Reviewer {
 }
 
 type k8sClientReviewer struct {
-	rev       clientauthv1.TokenReviewInterface
+	rev       TokenReviewCreator
 	audiences []string
 }
 

@@ -12,7 +12,6 @@ import (
 	"github.com/hamfist/k8s-http-auth/client"
 	"github.com/hamfist/k8s-http-auth/reviewer"
 	"github.com/pkg/errors"
-	clientauthv1 "k8s.io/client-go/kubernetes/typed/authentication/v1"
 )
 
 const (
@@ -77,14 +76,14 @@ type Options struct {
 }
 
 // NewFunc creates a new Func for use with an http mux (router).
-func NewFunc(rev clientauthv1.TokenReviewInterface, opts *Options) Func {
+func NewFunc(rev reviewer.TokenReviewCreator, opts *Options) Func {
 	return func(next http.Handler) http.Handler {
 		return New(rev, opts).WithNext(next)
 	}
 }
 
 // New creates a Middleware for use with an http mux (router).
-func New(rev clientauthv1.TokenReviewInterface, opts *Options) Middleware {
+func New(rev reviewer.TokenReviewCreator, opts *Options) Middleware {
 	var revOpts *reviewer.Options = nil
 
 	if opts != nil {
