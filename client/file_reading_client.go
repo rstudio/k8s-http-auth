@@ -23,6 +23,8 @@ func (frc *fileReadingClient) started(ctx context.Context) Interface {
 		frc.loopInterval = 1 * time.Hour
 	}
 
+	_ = frc.refreshToken()
+
 	go func() {
 		for {
 			select {
