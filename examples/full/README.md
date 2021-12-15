@@ -14,7 +14,7 @@ To run locally with [kind](https://kind.sigs.k8s.io/) via `make`:
 
 ```bash
 # in this `examples/full` directory
-make
+make setup
 ```
 
 The default `make` (`make all`) target will run the following targets:
@@ -29,7 +29,8 @@ The default `make` (`make all`) target will run the following targets:
 ## Interacting Locally
 
 A healthy api service with fully-functioning auth based on
-projected service account token will respond with:
+projected service account token will be available at
+<http://localhost:31881> and respond with:
 
 ```
 {"ok":"yep"}
