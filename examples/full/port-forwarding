@@ -11,16 +11,21 @@ main() {
   local pid_file="${STATE_DIR}/port-forward.pid"
   local log_file="${STATE_DIR}/port-forward.log"
   local local_url="http://127.0.0.1:${LOCALPORT}"
+  local curl_get=(curl --connect-timeout 5 -fs)
 
   case "${cmd}" in
   start)
     local pid
-    if [[ -f "${pid_file}" ]] && curl -fs "${local_url}/healthz" &>/dev/null; then
+    if [[ -f "${pid_file}" ]] && "${curl_get[@]}" "${local_url}/healthz" &>/dev/null; then
       pid="$(cat "${pid_file}")"
     else
       nohup \
-        kubectl -n k8s-http-auth-system \
-          port-forward svc/api "${LOCALPORT}:8080" &>>"${log_file}" &
+        kubectl \
+          -v=10 \
+          -n k8s-http-auth-system \
+          --address 0.0.0.0 \
+          port-forward svc/api \
+          "${LOCALPORT}:8080" &>>"${log_file}" &
       pid="${!}"
     fi
     echo "${pid}" | tee "${pid_file}" &>/dev/null
@@ -44,7 +49,7 @@ main() {
     fi
     local pid
     pid="$(cat "${pid_file}")"
-    if curl -fs "${local_url}/healthz" &>/dev/null; then
+    if "${curl_get[@]}" "${local_url}/healthz" &>/dev/null; then
       printf 'INFO: presumably started with pid %s\n' "${pid}"
       exit 0
     fi

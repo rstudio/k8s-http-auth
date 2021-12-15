@@ -54,7 +54,8 @@ wait-for-%:
 	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=5m pod -l app=$*
 
 test: wait-for-it.sh
-	./wait-for-it.sh 127.0.0.1:18080 -- curl --retry-connrefused --retry 5 -fsiSL http://127.0.0.1:18080 && \
+	./wait-for-it.sh 127.0.0.1:18080 -- \
+		curl --connect-timeout 5 --retry-connrefused --retry 5 -fsSL http://127.0.0.1:18080 && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/api && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
 
