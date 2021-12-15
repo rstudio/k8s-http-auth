@@ -5,12 +5,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
+	"github.com/go-logr/zapr"
 	"github.com/rstudio/k8s-http-auth/reviewer"
 	"github.com/rstudio/k8s-http-auth/reviewer/memory"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	authv1 "k8s.io/api/authentication/v1"
 )
 
@@ -22,7 +22,10 @@ func TestReviewer(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-test")
+	zl, err := zap.NewProduction()
+	assert.Nil(t, err)
+
+	log := zapr.NewLogger(zl).WithName("k8s-http-auth-test")
 	ctx = logr.NewContext(ctx, log)
 
 	goodTokenReview := &authv1.TokenReview{
@@ -53,7 +56,7 @@ func TestReviewer(t *testing.T) {
 
 	rev := reviewer.New(tr, &reviewer.Options{Audiences: []string{"hats"}})
 
-	err := rev.Review(ctx, goodToken)
+	err = rev.Review(ctx, goodToken)
 	assert.Nilf(t, err, "good token is allowed and results in nil error")
 
 	err = rev.Review(ctx, disallowedToken)

@@ -1,6 +1,24 @@
+TOP := $(shell git rev-parse --show-toplevel)
 SHELL := /bin/bash
 
-all: build kind-ensure-cluster kind-load apply wait-for-db wait-for-api
+all: copy-self build kind-ensure-cluster kind-load apply wait-for-db wait-for-api
+
+copy-self: api/k8s-http-auth/go.mod db/k8s-http-auth/go.mod
+
+%/k8s-http-auth/go.mod:
+	mkdir -p $(dir $@) && \
+	cd $(TOP) && \
+	rsync -av \
+	  --exclude Makefile \
+	  --exclude README.md \
+	  --exclude examples/ \
+  	  --exclude .git/ \
+  	  --exclude .github/ \
+  	  --exclude .gitignore \
+  	  --exclude LICENSE \
+  	  --exclude coverage.out \
+	  ./ \
+	  examples/full/$(dir $@)
 
 build: build-api build-db
 
@@ -8,7 +26,7 @@ build-%:
 	cd $* && docker build -t k8s-http-auth/$*:local .
 
 clean:
-	rm -vf port-forward.log
+	rm -rvf port-forward.log api/k8s-http-auth/ db/k8s-http-auth/
 
 kind-load: kind-load-api kind-load-db
 

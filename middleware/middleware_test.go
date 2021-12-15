@@ -6,14 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
+	"github.com/go-logr/zapr"
 	"github.com/rstudio/k8s-http-auth/client"
 	"github.com/rstudio/k8s-http-auth/middleware"
 	"github.com/rstudio/k8s-http-auth/reviewer"
 	"github.com/rstudio/k8s-http-auth/reviewer/memory"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	authv1 "k8s.io/api/authentication/v1"
 )
 
@@ -25,7 +25,10 @@ func TestMiddleware(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-test")
+	zl, err := zap.NewProduction()
+	assert.Nil(t, err)
+
+	log := zapr.NewLogger(zl).WithName("k8s-http-auth-test")
 	ctx = logr.NewContext(ctx, log)
 
 	goodTokenReview := &authv1.TokenReview{

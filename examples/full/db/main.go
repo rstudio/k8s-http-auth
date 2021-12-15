@@ -7,17 +7,23 @@ import (
 	"os"
 	"time"
 
-	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
+	"github.com/go-logr/zapr"
 	"github.com/gorilla/mux"
 	"github.com/rstudio/k8s-http-auth/middleware"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
 func main() {
-	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-example-db")
+	zl, err := zap.NewProduction()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to set up logger: %v\n", err)
+		os.Exit(1)
+	}
+
+	log := zapr.NewLogger(zl).WithName("k8s-http-auth-example-api")
 	router := mux.NewRouter()
 
 	addr := ":9090"
@@ -46,12 +52,12 @@ func main() {
 			next.ServeHTTP(w, req.WithContext(logr.NewContext(req.Context(), log)))
 		})
 	})
-	router.Use(middleware.New(
+	router.Use(mux.MiddlewareFunc(middleware.NewFunc(
 		clientSet.AuthenticationV1().TokenReviews(),
 		&middleware.Options{
 			Audiences: []string{"api-db"},
 		},
-	))
+	)))
 
 	log.Info("listening", "addr", addr)
 	http.ListenAndServe(addr, router)
