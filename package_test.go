@@ -3,7 +3,7 @@ package k8shttpauth_test
 import (
 	"testing"
 
-	k8shttpauth "github.com/hamfist/k8s-http-auth"
+	k8shttpauth "github.com/rstudio/k8s-http-auth"
 )
 
 func TestPackageInterface(t *testing.T) {

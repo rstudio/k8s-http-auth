@@ -21,9 +21,9 @@ type Reviewer interface {
 // TokenReviewCreator is a subset of
 // k8s.io/client-go/kubernetes/typed/authentication/v1.TokenReviewInterface
 // that allows for easier interface fulfillment such as by
-// github.com/hamfist/k8s-http-auth/reviewer/local.TokenReviewCreator
+// github.com/rstudio/k8s-http-auth/reviewer/local.TokenReviewCreator
 // and
-// github.com/hamfist/k8s-http-auth/reviewer/memory.TokenReviewCreator.
+// github.com/rstudio/k8s-http-auth/reviewer/memory.TokenReviewCreator.
 // In typical production usage, this interface is satisfied by
 // (*k8s.io/client-go/kubernetes.Clientset).AuthenticationV1().TokenReviews().
 type TokenReviewCreator interface {

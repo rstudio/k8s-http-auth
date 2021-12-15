@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
-	"github.com/hamfist/k8s-http-auth/client"
-	"github.com/hamfist/k8s-http-auth/reviewer"
+	"github.com/rstudio/k8s-http-auth/client"
+	"github.com/rstudio/k8s-http-auth/reviewer"
 	"github.com/pkg/errors"
 )
 

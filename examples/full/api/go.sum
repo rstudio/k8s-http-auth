@@ -169,8 +169,8 @@ github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0U
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 h1:pdN6V1QBWetyv/0+wjACpqVH+eVULgEjkurDLq3goeM=
 github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7/go.mod h1:FecbI9+v66THATjSRHfNgh1IVFe/9kFxbXtjV0ctIMA=
-github.com/hamfist/k8s-http-auth v0.0.0-20210418115604-c0b95c108440 h1:StVhyFdyVh4XERH2pzegHgGtb8NhlreEDZNGZaL6pWA=
-github.com/hamfist/k8s-http-auth v0.0.0-20210418115604-c0b95c108440/go.mod h1:BzkMTDqRW/ckUm8ubWNFTzg689doMQJAmEtUcdD4Rj8=
+github.com/rstudio/k8s-http-auth v0.0.0-20210418115604-c0b95c108440 h1:StVhyFdyVh4XERH2pzegHgGtb8NhlreEDZNGZaL6pWA=
+github.com/rstudio/k8s-http-auth v0.0.0-20210418115604-c0b95c108440/go.mod h1:BzkMTDqRW/ckUm8ubWNFTzg689doMQJAmEtUcdD4Rj8=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1 h1:0hERBMJE1eitiLkihrMvRVBYAkpHzc/J3QdDN+dAcgU=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
