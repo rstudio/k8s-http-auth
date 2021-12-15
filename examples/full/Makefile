@@ -1,7 +1,11 @@
 TOP := $(shell git rev-parse --show-toplevel)
 SHELL := /bin/bash
 
-all: copy-self build kind-ensure-cluster kind-load apply wait-for-db wait-for-api
+all: setup test teardown
+
+setup: copy-self build kind-ensure-cluster kind-load apply start-port-forwarding wait-for-db wait-for-api
+
+teardown: stop-port-forwarding delete
 
 copy-self: api/k8s-http-auth/go.mod db/k8s-http-auth/go.mod
 
@@ -48,13 +52,13 @@ start-port-forwarding:
 	./port-forwarding start
 
 stop-port-forwarding:
-	./port-forwarding stop
+	./port-forwarding stop || true
 
 wait-for-%:
 	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=5m pod -l app=$*
 
 test: wait-for-it.sh
-	./wait-for-it.sh 127.0.0.1:18080 -- \
+	./wait-for-it.sh 127.0.0.1:18080 --timeout=0 -- \
 		curl --connect-timeout 5 --retry-connrefused --retry 5 -fsSL http://127.0.0.1:18080 && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/api && \
 		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
