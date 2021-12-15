@@ -2,7 +2,7 @@
 
 Kubernetes HTTP auth things.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/hamfist/k8s-http-auth.svg)](https://pkg.go.dev/github.com/hamfist/k8s-http-auth)
+[![Go Reference](https://pkg.go.dev/badge/github.com/rstudio/k8s-http-auth.svg)](https://pkg.go.dev/github.com/rstudio/k8s-http-auth)
 
 ## middleware
 

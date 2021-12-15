@@ -10,7 +10,7 @@ import (
 	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
 	"github.com/gorilla/mux"
-	"github.com/hamfist/k8s-http-auth/middleware"
+	"github.com/rstudio/k8s-http-auth/middleware"
 	"github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"

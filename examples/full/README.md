@@ -5,7 +5,7 @@ the `k8s-http-auth` client library and middleware. The example uses
 [gorilla/mux](https://pkg.go.dev/github.com/gorilla/mux) when
 adding auth middleware, but any framework that accepts or can be
 adapted to accept [this function
-type](https://pkg.go.dev/github.com/hamfist/k8s-http-auth/middleware#Func)
+type](https://pkg.go.dev/github.com/rstudio/k8s-http-auth/middleware#Func)
 should work.
 
 ## Running Locally

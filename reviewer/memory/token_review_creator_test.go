@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/hamfist/k8s-http-auth/reviewer/memory"
+	"github.com/rstudio/k8s-http-auth/reviewer/memory"
 	"github.com/stretchr/testify/assert"
 	authv1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -11,7 +11,7 @@ import (
 
 	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
-	"github.com/hamfist/k8s-http-auth/client"
+	"github.com/rstudio/k8s-http-auth/client"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )

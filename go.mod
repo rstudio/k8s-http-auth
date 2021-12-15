@@ -1,4 +1,4 @@
-module github.com/hamfist/k8s-http-auth
+module github.com/rstudio/k8s-http-auth
 
 go 1.16
 

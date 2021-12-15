@@ -3,9 +3,9 @@
 package k8shttpauth
 
 import (
-	"github.com/hamfist/k8s-http-auth/client"
-	"github.com/hamfist/k8s-http-auth/middleware"
-	"github.com/hamfist/k8s-http-auth/reviewer"
+	"github.com/rstudio/k8s-http-auth/client"
+	"github.com/rstudio/k8s-http-auth/middleware"
+	"github.com/rstudio/k8s-http-auth/reviewer"
 )
 
 var (
