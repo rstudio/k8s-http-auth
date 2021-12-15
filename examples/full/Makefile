@@ -51,7 +51,7 @@ stop-port-forwarding:
 	./port-forwarding stop
 
 wait-for-%:
-	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=90s pod -l app=$*
+	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=5m pod -l app=$*
 
 test: wait-for-it.sh
 	./wait-for-it.sh 127.0.0.1:18080 -- curl --retry-connrefused --retry 5 -fsiSL http://127.0.0.1:18080 && \
