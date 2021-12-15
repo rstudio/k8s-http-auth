@@ -3,9 +3,9 @@ SHELL := /bin/bash
 
 all: setup test teardown
 
-setup: copy-self build kind-ensure-cluster kind-load apply start-port-forwarding wait-for-db wait-for-api
+setup: copy-self build kind-ensure-cluster kind-load apply wait-for-nginx wait-for-db wait-for-api
 
-teardown: stop-port-forwarding delete
+teardown: delete
 
 copy-self: api/k8s-http-auth/go.mod db/k8s-http-auth/go.mod
 
@@ -30,7 +30,7 @@ build-%:
 	cd $* && docker build -t k8s-http-auth/$*:local .
 
 clean:
-	rm -rvf port-forward.log api/k8s-http-auth/ db/k8s-http-auth/
+	rm -rvf api/k8s-http-auth/ db/k8s-http-auth/
 
 kind-load: kind-load-api kind-load-db
 
@@ -39,35 +39,31 @@ kind-load-%:
 
 kind-ensure-cluster:
 	kind get clusters | if ! grep -q ^kind; then \
-		kind create cluster; \
+		kind create cluster --config=kind-config.yaml; \
 	fi
 
 apply:
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml && \
+	sleep 15 && \
+	$(MAKE) wait-for-nginx && \
 	kubectl apply -f ./deployment.yaml
 
 delete:
 	kubectl delete -f ./deployment.yaml
 
-start-port-forwarding:
-	./port-forwarding start
-
-stop-port-forwarding:
-	./port-forwarding stop || true
-
 wait-for-%:
 	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=5m pod -l app=$*
 
+wait-for-nginx:
+	kubectl -n ingress-nginx wait --for=condition=ready --timeout=10m pod --selector=app.kubernetes.io/component=controller
+
 test: wait-for-it.sh
-	./wait-for-it.sh 127.0.0.1:18080 --timeout=0 -- \
-		curl --connect-timeout 5 --retry-connrefused --retry 5 -fsSL http://127.0.0.1:18080 && \
-		kubectl -n k8s-http-auth-system logs --tail 2 svc/api && \
-		kubectl -n k8s-http-auth-system logs --tail 2 svc/db
+	./check-pods
 
 dump-logs:
 	kubectl -n k8s-http-auth-system get events
 	kubectl -n k8s-http-auth-system logs svc/api && \
-		kubectl -n k8s-http-auth-system logs svc/db && \
-		cat port-forward.log || true
+		kubectl -n k8s-http-auth-system logs svc/db
 
 wait-for-it.sh:
 	curl -fsSL -o $@ https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh

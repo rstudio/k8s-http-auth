@@ -28,15 +28,6 @@ The default `make` (`make all`) target will run the following targets:
 
 ## Interacting Locally
 
-To interact locally with the running api service, start port
-forwarding
-
-```bash
-make start-port-forward
-```
-
-and then the api service will be available at <http://127.0.0.1:18080>.
-
 A healthy api service with fully-functioning auth based on
 projected service account token will respond with:
 
