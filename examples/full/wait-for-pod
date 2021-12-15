@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o pipefail
+
+main() {
+  local app="${1}"
+
+  local attempt=0
+  while true; do
+    if kubectl \
+      -n k8s-http-auth-system wait \
+      --for=condition=ready \
+      --timeout=5m \
+      pod \
+      -l app="${app}"; then
+      printf 'INFO: %s is ready\n' "${app}"
+      exit 0
+    fi
+
+    if [[ "${attempt}" -gt 10 ]]; then
+      printf 'ERROR: timed out waiting for %s to be ready\n' "${app}"
+      exit 86
+    fi
+
+    attempt=$((attempt + 1))
+
+    printf 'INFO: retrying after %ss...\n' "${attempt}"
+    sleep "${attempt}"
+  done
+}
+
+main "${@}"

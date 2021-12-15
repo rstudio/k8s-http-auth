@@ -3,7 +3,7 @@ set -o errexit
 set -o pipefail
 
 main() {
-  : "${APP_ADDR:=127.0.0.1:18881}"
+  : "${APP_ADDR:=127.0.0.1:31881}"
 
   ./wait-for-it.sh "${APP_ADDR}" --timeout=0
 

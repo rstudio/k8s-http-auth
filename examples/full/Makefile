@@ -3,7 +3,7 @@ SHELL := /bin/bash
 
 all: setup test teardown
 
-setup: copy-self build kind-ensure-cluster kind-load apply wait-for-nginx wait-for-db wait-for-api
+setup: copy-self build kind-ensure-cluster kind-load apply wait-for-db wait-for-api
 
 teardown: delete
 
@@ -43,19 +43,13 @@ kind-ensure-cluster:
 	fi
 
 apply:
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml && \
-	sleep 15 && \
-	$(MAKE) wait-for-nginx && \
 	kubectl apply -f ./deployment.yaml
 
 delete:
 	kubectl delete -f ./deployment.yaml
 
 wait-for-%:
-	kubectl -n k8s-http-auth-system wait --for=condition=ready --timeout=5m pod -l app=$*
-
-wait-for-nginx:
-	kubectl -n ingress-nginx wait --for=condition=ready --timeout=10m pod --selector=app.kubernetes.io/component=controller
+	./wait-for-pod $*
 
 test: wait-for-it.sh
 	./check-pods
