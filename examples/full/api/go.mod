@@ -1,11 +1,18 @@
 module github.com/rstudio/k8s-http-auth/examples/full/api
 
-go 1.16
+go 1.17
+
+replace github.com/rstudio/k8s-http-auth => ./k8s-http-auth/
 
 require (
-	github.com/bombsimon/logrusr v1.0.0
-	github.com/go-logr/logr v0.4.0
+	github.com/go-logr/logr v1.2.2
+	github.com/go-logr/zapr v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/rstudio/k8s-http-auth v0.0.0-20210418115604-c0b95c108440
-	github.com/sirupsen/logrus v1.8.1
+	github.com/rstudio/k8s-http-auth v0.4.1
+	go.uber.org/zap v1.19.0
+)
+
+require (
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 )

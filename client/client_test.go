@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
+	"github.com/go-logr/zapr"
 	"github.com/rstudio/k8s-http-auth/client"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestClient(t *testing.T) {
@@ -35,7 +35,9 @@ func TestClient(t *testing.T) {
 	}
 	cl := client.New(ctx, clOpts)
 
-	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-test")
+	zl, err := zap.NewProduction()
+	assert.Nil(t, err)
+	log := zapr.NewLogger(zl)
 	ctx = logr.NewContext(ctx, log)
 
 	time.Sleep(100 * time.Millisecond)

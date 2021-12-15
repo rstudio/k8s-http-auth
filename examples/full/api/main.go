@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/bombsimon/logrusr"
 	"github.com/go-logr/logr"
+	"github.com/go-logr/zapr"
 	"github.com/gorilla/mux"
 	"github.com/rstudio/k8s-http-auth/client"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 var (
@@ -20,9 +23,18 @@ var (
 )
 
 func main() {
-	log := logrusr.NewLogger(logrus.New()).WithName("k8s-http-auth-example-api")
+	zl, err := zap.NewProduction()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to set up logger: %v\n", err)
+		os.Exit(1)
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
+	log := zapr.NewLogger(zl).WithName("k8s-http-auth-example-api")
 	router := mux.NewRouter()
-	ac := client.New(nil)
+	ac := client.New(ctx, nil)
 
 	addr := ":8080"
 	if v := os.Getenv("ADDR"); v != "" {

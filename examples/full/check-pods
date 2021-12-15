@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o pipefail
+
+main() {
+  : "${APP_ADDR:=127.0.0.1:31881}"
+
+  ./wait-for-it.sh "${APP_ADDR}" --timeout=0
+
+  local attempt=0
+  while true; do
+    if curl \
+      --connect-timeout 5 \
+      --retry-connrefused \
+      --retry 5 \
+      -fsSL "http://${APP_ADDR}"; then
+      break
+    fi
+
+    if [[ "${attempt}" -gt 10 ]]; then
+      printf 'ERROR: timed out waiting for api to respond\n'
+      exit 86
+    fi
+
+    attempt=$((attempt + 1))
+
+    printf 'INFO: retrying after %ss...\n' "${attempt}"
+    sleep "${attempt}"
+  done
+
+  kubectl -n k8s-http-auth-system logs --tail 2 svc/api
+  kubectl -n k8s-http-auth-system logs --tail 2 svc/db
+}
+
+main "${@}"

@@ -8,8 +8,6 @@ test:
 .PHONY: integration-test
 integration-test:
 	$(MAKE) -C examples/full
-	$(MAKE) -C examples/full start-port-forwarding
-	$(MAKE) -C examples/full test
 
 .PHONY: show-cover
 show-cover:
