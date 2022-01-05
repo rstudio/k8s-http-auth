@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -17,7 +16,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	td, err := ioutil.TempDir("", "k8s-http-auth.*")
+	td, err := os.MkdirTemp("", "k8s-http-auth.*")
 	assert.Nil(t, err)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -45,7 +44,7 @@ func TestClient(t *testing.T) {
 	tok, err := cl.ID(ctx)
 	assert.NotNilf(t, err, "initial read fails because the file %q does not exist", tokenPath)
 
-	err = ioutil.WriteFile(tokenPath, []byte("sturgeon\n"), 0640)
+	err = os.WriteFile(tokenPath, []byte("sturgeon\n"), 0640)
 	assert.Nilf(t, err, "writing to token path %q resulted in an error", tokenPath)
 
 	time.Sleep(200 * time.Millisecond)
