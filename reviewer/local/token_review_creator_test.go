@@ -2,7 +2,6 @@ package local_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -13,7 +12,7 @@ import (
 )
 
 func TestTokenReviewCreator(t *testing.T) {
-	td, err := ioutil.TempDir("", "k8s-http-auth-*")
+	td, err := os.MkdirTemp("", "k8s-http-auth-*")
 	assert.Nil(t, err)
 
 	defer func() {

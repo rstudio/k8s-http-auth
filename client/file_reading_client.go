@@ -2,8 +2,8 @@ package client
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -46,7 +46,7 @@ func (frc *fileReadingClient) started(ctx context.Context) Interface {
 }
 
 func (frc *fileReadingClient) refreshToken() error {
-	tokenBytes, err := ioutil.ReadFile(frc.path)
+	tokenBytes, err := os.ReadFile(frc.path)
 	if err != nil {
 		frc.cachedError = err
 		return err
