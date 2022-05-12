@@ -1,4 +1,4 @@
-FROM golang:1.17 AS build
+FROM golang:1.18 AS build
 WORKDIR /app/src
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -x -o /example-api .
