@@ -1,6 +1,6 @@
 module github.com/rstudio/k8s-http-auth/examples/full/api
 
-go 1.17
+go 1.18
 
 replace github.com/rstudio/k8s-http-auth => ./k8s-http-auth/
 
