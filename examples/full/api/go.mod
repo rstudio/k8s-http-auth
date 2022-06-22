@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
 	github.com/gorilla/mux v1.8.0
-	github.com/rstudio/k8s-http-auth v0.4.3
+	github.com/rstudio/k8s-http-auth v0.4.4
 	go.uber.org/zap v1.21.0
 )
 
