@@ -5,6 +5,10 @@ all: test show-cover
 test:
 	go test -coverprofile=coverage.out -v ./...
 
+.PHONY: deps-up
+deps-up:
+	go get -t -u ./... && $(MAKE) -C examples/full deps-up
+
 .PHONY: integration-test
 integration-test:
 	$(MAKE) -C examples/full
