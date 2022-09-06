@@ -32,6 +32,13 @@ build-%:
 clean:
 	rm -rvf api/k8s-http-auth/ db/k8s-http-auth/
 
+.PHONY: deps-up
+deps-up:
+	cd ./api && \
+		go get -t -u ./... && \
+		cd ../db/ && \
+		go get -t -u ./...
+
 kind-load: kind-load-api kind-load-db
 
 kind-load-%:
